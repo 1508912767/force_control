@@ -1,38 +1,5 @@
-# Ridgeback+Ur5 Controller [DEVEL]
-[![Build Status](https://travis-ci.com/epfl-lasa/ridgeback_ur5_controller.svg?token=m4ujgeX7fDuuc9CGktAM&branch=master)](https://travis-ci.com/epfl-lasa/ridgeback_ur5_controller)
-
-This repository provides several contollers for the Ridgeback mobile-robot with Ur5 robotic-arm. 
-
-
-* [admittance_control](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/admittance_control): 
-This package implements an admittance controller on the ridgeback+UR5 platform (see below for the control architecture). 
-* [ur5_cartesian_velocity_control](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/ur5_cartesian_velocity_control): This package provides a cartesian velocity controller (ros control) for the UR5 arm. 
-* [obstacle_avoidance](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/obstacle_avoidance): This package provides a simple obstacle-avoidance for the platform. It looks for the nearest obstacle using the laser sensors and remove the velocity components in that direction.
-* [cpr_bringup](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/cpr_bringup): This package provides a series of launch files and ROS settings in order to start-up the real-robot as well as the simulator. 
-* [cpr_mocap_tracking](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/cpr_mocap_tracking): This package enables the robot to track an object (using mocap system) in its own frame of references (automatic calibration is included).
-* [cartesian_state_msgs](https://github.com/epfl-lasa/ridgeback_ur5_controller/tree/devel/cartesian_state_msgs): It contains the defintion of message type "PoseTwist" (combination of the standard ros/geometry_msgs pose and twist).
-
-
----
-
 ## Compliation and build
 
-Clone the repository intor your catkin source directory
-```bash
-$ cd ~/catkin_ws/src
-$ git clone git@github.com:epfl-lasa/ridgeback_ur5_controller.git
-```
-
-Get the source dependencies using wstool
-```bash
-$ wstool init
-$ wstool merge ridgeback_ur5_controller/dependencies.rosinstall
-$ wstool up
-```
-Get the package dependencies using rosdep
-```bash
-$ rosdep install -y --from-paths src --ignore-src --rosdistro indigo
-```
 You also need the following ros packages
 ```bash
 $ sudo apt-get install ros-indigo-ridgeback-*
@@ -59,29 +26,6 @@ You might need to follow [these instructions](http://gazebosim.org/tutorials?tut
 
 ---
 ---
-
-
-## Running the controller
-
-
-To bring up the robot in simulation run
-```
-roslaunch cpr_bringup cpr_bringup.launch
-roslaunch admittance_control admittance_controller.launch
-```
-For the real robot launch on the CPR main PC run
-```
-roslaunch cpr_bringup cpr_bringup.launch sim:=false
-roslaunch admittance_control admittance_controller_real.launch
-```
-
-# Expected behaviors
-
-The behavior of different components are demonstrated here:
-* [admittance control](https://youtu.be/e6_z8rCOoIs) and its [rviz](https://youtu.be/T10rhY_HqZo)
-* [obstacle avoidance](https://youtu.be/tqsskZV-D6A) and its [rviz](https://youtu.be/m-LsolZWia8).
-* [object tracking](https://youtu.be/k5OMNfCmOGY) and its [rviz](https://youtu.be/ru9Xr6W0rQE).
-
 
 
 

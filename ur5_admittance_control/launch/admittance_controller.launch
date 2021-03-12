@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="STATE_TOPIC_ARM" default="/ur5_cartesian_velocity_controller_sim/ee_state"/>
+  <arg name="CMD_TOPIC_ARM" default="/ur5_cartesian_velocity_controller_sim/command_cart_vel"/>
+  <arg name="WRENCH_FILTER_FACTOR" default="1.0" />
+  <arg name="FORCE_DEAD_ZONE_THRES" default="0.0" />
+  <arg name="TORQUE_DEAD_ZONE_THRES" default="0.0" />
+  <arg name="WRENCH_TOPIC" default="/ft_sensor/data" />
+  <arg name="ADMITTANCE_PARAMS_FILE" default="$(find ur5_admittance_control)/config/admittance_params.yaml" />
+
+  <param name="topic_arm_state" value="$(arg STATE_TOPIC_ARM)"/>
+  <param name="topic_arm_command" value="$(arg CMD_TOPIC_ARM) "/>
+  <param name="topic_external_wrench" value="$(arg WRENCH_TOPIC)"/>
+  <param name="wrench_filter_factor" value="$(arg WRENCH_FILTER_FACTOR)"/>
+  <param name="force_dead_zone_thres" value="$(arg FORCE_DEAD_ZONE_THRES)"/>
+  <param name="torque_dead_zone_thres" value="$(arg TORQUE_DEAD_ZONE_THRES)"/>
+  
+  <arg name="sim" default="true" />
+  <arg name="F/T_sensor" default="false" />
+
+  <rosparam file="$(arg ADMITTANCE_PARAMS_FILE)" command="load"/>
+
+  <include file="$(find ur5_bringup)/launch/ur5_bringup.launch" >
+    <arg name="sim" value="$(arg sim)"/>
+    <arg name="F/T_sensor" value="$(arg F/T_sensor)"/>
+  </include>
+
+
+  <node pkg="ur5_admittance_control" name="ur5_admittance_controller" type="admittance_controller_node" output="screen"/>
+
+
+</launch>

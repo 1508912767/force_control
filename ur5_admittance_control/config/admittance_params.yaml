@@ -1,0 +1,36 @@
+# Admittance parameters for two mass damper systems
+# (the arm and the platform) with params (mass_arm, damping_arm)
+# and (mass_platform, damping_platform) respectively, connected by a
+# spring-damper （弹簧减震器）with parameters (damping_coupling耦合阻尼, stiffness_coupling耦合刚度,
+# equilibrium_point_spring)
+mass_arm: [2,0,0,0,0,0,
+           0,2,0,0,0,0,
+           0,0,2,0,0,0,
+           0,0,0,2,0,0,
+           0,0,0,0,2,0,
+           0,0,0,0,0,2]
+damping_arm: [12,0,0,0,0,0,
+              0,12,0,0,0,0,
+              0,0,12,0,0,0,
+              0,0,0,10,0,0,
+              0,0,0,0,10,0,
+              0,0,0,0,0,10]
+stiffness_arm: [10,0,0,0,0,0,
+                0,20,0,0,0,0,
+                0,0,10,0,0,0,
+                0,0,0,10,0,0,
+                0,0,0,0,10,0,
+                0,0,0,0,0,10]
+# [position (x, y, z)  orientation (x, y, z, w)]
+# 就是设该点为力平衡点,此时在外界没有作用力的时候机械臂是平衡的，不给自动耷拉下来（耷拉说明平衡点为0）
+# 通过指定平衡点应该就可以实现东南的第二个视频
+# 因为平衡点的是（0.1,0.4）,要平衡力, 所以fake foce 的力肯定是相反方向的，也就是(0.4,-0.1)
+# 上条驳回,其实就是（0.1,0.4,0.5）,前面是关节rpy转角的问题，见ur5.urdf.xacro
+# equilibrium_point_spring: [0.1,0.4,0.5,-0.593599, -0.566706, -0.369419, 0.435908]
+equilibrium_point_spring: [-0.341,-0.103,0.657,-0.49, -0.1520, 0.8077, -0.2835]
+
+
+workspace_limits: [-0.50, 0.50, -0.5, 0.5, 0.30, 0.75]
+
+arm_max_vel: 1.5
+arm_max_acc: 1.0

@@ -1,0 +1,39 @@
+<launch>
+  <!-- PARAMS -->
+  <arg name="sim" default="false"/>
+  <arg name="F/T_sensor" default="true"/>
+  <arg name="world_name" default="$(find ur5_bringup)/worlds/bifurcation.world"/>
+  <arg name="rviz_conf" default="$(find ur5_bringup)/rviz/admittance_fake_wrench.rviz"/>
+
+  <!-- BRINGUP ROBOT -->
+  <include file="$(find ur5_bringup)/launch/robot_bringup.launch">
+    <arg name="sim" value="$(arg sim)"/>
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
+
+  <!-- RVIZ -->
+  <group if="$(arg sim)" >
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_conf)"/>
+
+    <!-- *******FAKE WRENCH (if there is no F/T device)********-->
+    <node unless="$(arg F/T_sensor)" name="fake_wrench" pkg="ur5_bringup" type="fake_wrench.py"
+      required="true" output="screen">
+    </node>
+    <!-- *******FAKE WRENCH (if there is no F/T device)********-->
+
+    <!-- ********REAL WRENCH from F/T sensor********************** -->
+    <include if="$(arg F/T_sensor)" file="$(find ati_sensor)/launch/ft_sensor.launch"/>
+    <!-- ********REAL WRENCH from F/T sensor********************** -->
+
+
+    <!-- SET INITIAL POSE AND START CONTROLLERS-->
+    <!-- To make sure gazebo is already loaded, they are launched 6 secs after the initial roslaunch -->
+    <node pkg="ur5_bringup" type="timed_roslaunch.sh" args="6 ur5_bringup init_pose_start_controllers.launch"  
+      name="timed_start_controllers" output="screen">
+    </node>
+
+  </group>
+
+</launch>
+
+

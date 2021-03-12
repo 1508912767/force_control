@@ -1,0 +1,10 @@
+<launch>
+
+  <!-- 延时之后,开始通过脚本初始化机器人位姿 -->
+  <rosparam file="$(find ur5_bringup)/config/initial_pose.yaml" command="load"/>
+
+  <!-- SET INITIAL POSE -->
+  <node name="set_initial_pose_node" pkg="ur5_bringup" type="init_pose_start_controllers.py" output="screen"/>
+
+</launch>
+

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot name="ur5" xmlns:xacro="http://ros.org/wiki/xacro">
+
+
+  <!-- 注意这里用的是下载的ur_description,不是自己的包哦 -->
+  <!-- <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" /> -->
+  <xacro:include filename="$(find ur5_bringup)/urdf/ur5_description.urdf.xacro" />
+
+  <!-- Spawn arm -->
+  <xacro:ur5_robot prefix="" joint_limited="false" />
+  <xacro:ur5_gazebo prefix="" />
+  <xacro:ur5_transmission prefix="" hw_interface="hardware_interface/PositionJointInterface"/>
+
+  <!-- <link name="base_link"/> -->
+
+  <!-- Join arm -->
+  <!-- <joint name="ur5_arm_base_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="ur5_arm_base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0" />
+  </joint> -->
+
+
+</robot>

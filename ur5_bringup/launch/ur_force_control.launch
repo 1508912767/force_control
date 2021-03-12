@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="debug" default="false" doc="Debug flag that will get passed on to ur_common.launch"/>
+  <arg name="robot_ip" doc="IP address by which the robot can be reached."/>
+  <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
+  <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
+  <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
+  <arg name="controller_config_file" default="$(find ur_robot_driver)/config/ur5_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
+  <arg name="robot_description_file" default="$(find ur_description)/launch/ur5_upload.launch" doc="Robot description launch file."/>
+  <arg name="kinematics_config" default="$(find ur_description)/config/ur5_default.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
+  <arg name="limited" default="false" doc="Use the description in limited mode (Every axis rotates from -PI to PI)"/>
+  <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
+
+  <arg name="use_tool_communication" default="false"/>
+  <arg name="tool_voltage" default="0" doc="Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_parity" default="0" doc="Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_baud_rate" default="115200" doc="Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_stop_bits" default="1" doc="Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_rx_idle_chars" default="1.5" doc="Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_tx_idle_chars" default="3.5" doc="Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_device_name" default="/tmp/ttyUR" doc="Local device name used for tool communication. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="tool_tcp_port" default="54321" doc="Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true."/>
+
+  <!-- GDB functionality -->
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+  <arg name="urscript_file" default="$(find ur_robot_driver)/resources/ros_control.urscript" doc="Path to URScript that will be sent to the robot and that forms the main control program."/>
+  <arg name="rtde_output_recipe_file" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt" doc="Recipe file used for the RTDE-outputs. Only change this if you know what you're doing."/>
+  <arg name="rtde_input_recipe_file" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt" doc="Recipe file used for the RTDE-inputs. Only change this if you know what you're doing."/>
+
+    <!-- robot model -->
+  <include file="$(arg robot_description_file)">
+    <arg name="limited" value="$(arg limited)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
+  </include>
+
+  <!-- Convert joint states to /tf tranforms -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+  <!-- Load hardware interface -->
+  <node name="ur_hardware_interface" pkg="ur_robot_driver" type="ur_robot_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
+    <param name="robot_ip" type="str" value="$(arg robot_ip)"/>
+    <param name="reverse_port" type="int" value="$(arg reverse_port)"/>
+    <param name="script_sender_port" type="int" value="$(arg script_sender_port)"/>
+    <rosparam command="load" file="$(arg kinematics_config)" />
+    <param name="script_file" value="$(arg urscript_file)"/>
+    <param name="output_recipe_file" value="$(arg rtde_output_recipe_file)"/>
+    <param name="input_recipe_file" value="$(arg rtde_input_recipe_file)"/>
+    <param name="headless_mode" value="$(arg headless_mode)"/>
+    <param name="tf_prefix" value="$(arg tf_prefix)"/>
+    <param name="use_tool_communication" value="$(arg use_tool_communication)"/>
+    <param name="tool_voltage" value="$(arg tool_voltage)"/>
+    <param name="tool_parity" value="$(arg tool_parity)"/>
+    <param name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
+    <param name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
+    <param name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
+    <param name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
+  </node>
+
+  <!-- Starts socat to bridge the robot's tool communication interface to a local tty device -->
+  <node if="$(arg use_tool_communication)" name="ur_tool_communication_bridge" pkg="ur_robot_driver" type="tool_communication" respawn="false" output="screen">
+    <param name="robot_ip" value="$(arg robot_ip)"/>
+    <param name="reverse_port" type="int" value="$(arg reverse_port)"/>
+    <param name="script_sender_port" type="int" value="$(arg script_sender_port)"/>
+    <param name="device_name" value="$(arg tool_device_name)"/>
+    <param name="tcp_port" value="$(arg tool_tcp_port)"/>
+  </node>
+
+  <!-- Load controller settings -->
+  <rosparam file="$(arg controller_config_file)" command="load"/>
+    
+  <!-- 自己加载的 -->
+  <node name="admittance_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false" 
+    output="screen" args="load ur5_cartesian_velocity_controller" />
+
+  <!-- Make sure to start this in the namespace of the hardware interface -->
+  <node ns="ur_hardware_interface" name="ur_robot_state_helper" pkg="ur_robot_driver" type="robot_state_helper" respawn="false" output="screen">
+  </node>
+
+</launch>

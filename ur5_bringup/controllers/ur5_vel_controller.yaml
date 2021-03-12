@@ -1,0 +1,35 @@
+hardware_control_loop:
+  loop_hz: 125
+
+# Settings for ros_control hardware interface
+hardware_interface:
+  joints:
+    - shoulder_pan_joint
+    - shoulder_lift_joint
+    - elbow_joint
+    - wrist_1_joint
+    - wrist_2_joint
+    - wrist_3_joint
+
+ur5_cartesian_velocity_controller:
+  type: cartesian_controller/CartesianVelocityController
+  publish_rate: 125
+  root_name: base_link
+  tip_name: ee_link
+
+ur5_cartesian_velocity_controller_sim:
+  type: cartesian_controller/CartesianVelocityControllerSim
+  publish_rate: 125
+  root_name: base_link
+  tip_name: ee_link
+
+ur5_cartesian_state_controller:
+    type: cartesian_controller/CartesianStateController
+    publish_rate: 125
+    root_name: base_link
+    tip_name: ee_link
+
+#Publish wrench ----------------------------------
+force_torque_sensor_controller:
+    type: force_torque_sensor_controller/ForceTorqueSensorController
+    publish_rate: 125
